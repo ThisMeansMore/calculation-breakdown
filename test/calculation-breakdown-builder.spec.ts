@@ -227,6 +227,23 @@ describe('CalculationBreakdownBuilder', () => {
         );
     });
 
+    it('supports any locale provided by the host Intl implementation', () => {
+        const calculation = new CalculationBreakdownBuilder<'period'>()
+            .breakdown(({ duration }) => duration('period', '2.5', 'days'))
+            .result(({ duration }) => duration('period', '1.5', 'days'))
+            .build();
+
+        assert.equal(
+            toHumanString(calculation, {
+                locale: 'de-DE',
+                dictionary: {
+                    'de-DE': { period: { name: 'Zeitraum' } },
+                },
+            }),
+            '2,5 Tage Zeitraum = 1,5 Tage Zeitraum',
+        );
+    });
+
     it('stores percentages as exact fractions and renders percentage notation', () => {
         const builder = new CalculationBreakdownBuilder<'rate'>()
             .breakdown(({ percent }) => percent('rate', '0.0025'))

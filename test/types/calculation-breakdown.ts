@@ -28,9 +28,12 @@ toHumanString(calculation, {
     },
 });
 builder.toHumanString({
-    locale: 'cs',
+    locale: 'de-DE',
     dictionary: {
-        cs: { price: { name: 'cena' }, coverage: { name: 'pokrytí' } },
+        'de-DE': {
+            price: { name: 'Preis' },
+            coverage: { name: 'Abdeckung' },
+        },
     },
 });
 

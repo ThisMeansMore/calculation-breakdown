@@ -5,8 +5,8 @@ import type {
     TCalculationBreakdownValue,
 } from './calculation-breakdown.type.js';
 
-/** Locales supported by the built-in human-readable renderer. */
-export type TCalculationBreakdownLocale = 'en' | 'cs';
+/** Any BCP 47 locale supported by the host's Intl implementation. */
+export type TCalculationBreakdownLocale = string;
 
 /** A semantic label with optional explanatory copy for richer UIs. */
 export interface ICalculationBreakdownDictionaryEntry {
@@ -14,7 +14,7 @@ export interface ICalculationBreakdownDictionaryEntry {
     readonly description?: string;
 }
 
-/** Semantic labels grouped by supported locale. */
+/** Semantic labels grouped by locale. */
 export type TCalculationBreakdownDictionary<Semantic extends string> = Partial<
     Record<
         TCalculationBreakdownLocale,
@@ -45,7 +45,15 @@ function localizeDecimal(
     value: string,
     locale: TCalculationBreakdownLocale,
 ): string {
-    return locale === 'cs' ? value.replace('.', ',') : value;
+    const separator = new Intl.NumberFormat(locale, {
+        useGrouping: false,
+        maximumFractionDigits: 1,
+    })
+        .formatToParts(1.1)
+        .find((part) => part.type === 'decimal')?.value;
+    return separator && separator !== '.'
+        ? value.replace('.', separator)
+        : value;
 }
 
 function decimalToPercent(value: string): string {
