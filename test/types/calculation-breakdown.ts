@@ -22,14 +22,26 @@ toHumanString(calculation, {
     includeNames: false,
     dictionary: {
         en: {
-            price: 'price',
+            price: { name: 'price' },
             period: { name: 'period', description: 'Billing period.' },
         },
     },
 });
 builder.toHumanString({
     locale: 'cs',
-    dictionary: { cs: { price: 'cena', coverage: 'pokrytí' } },
+    dictionary: {
+        cs: { price: { name: 'cena' }, coverage: { name: 'pokrytí' } },
+    },
+});
+
+toHumanString(calculation, {
+    locale: 'en',
+    dictionary: {
+        en: {
+            // @ts-expect-error dictionary entries require an object with a name
+            price: 'price',
+        },
+    },
 });
 
 new CalculationBreakdownBuilder<Semantic>()

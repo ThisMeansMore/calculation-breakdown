@@ -11,19 +11,14 @@ export type TCalculationBreakdownLocale = 'en' | 'cs';
 /** A semantic label with optional explanatory copy for richer UIs. */
 export interface ICalculationBreakdownDictionaryEntry {
     readonly name: string;
-    readonly description: string;
+    readonly description?: string;
 }
-
-/** A short label or a label with explanatory copy. */
-export type TCalculationBreakdownDictionaryEntry =
-    | string
-    | ICalculationBreakdownDictionaryEntry;
 
 /** Semantic labels grouped by supported locale. */
 export type TCalculationBreakdownDictionary<Semantic extends string> = Partial<
     Record<
         TCalculationBreakdownLocale,
-        Partial<Record<Semantic, TCalculationBreakdownDictionaryEntry>>
+        Partial<Record<Semantic, ICalculationBreakdownDictionaryEntry>>
     >
 >;
 
@@ -96,8 +91,7 @@ function labelValue<Semantic extends string>(
 ): string {
     if (options.includeNames === false) return value;
     const entry = options.dictionary[options.locale]?.[semantic];
-    const label =
-        typeof entry === 'string' ? entry : (entry?.name ?? semantic);
+    const label = entry?.name ?? semantic;
     return `${value} ${label}`;
 }
 

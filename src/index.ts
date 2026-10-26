@@ -4,7 +4,6 @@ export {
     type ICalculationBreakdownDictionaryEntry,
     type ICalculationBreakdownHumanStringOptions,
     type TCalculationBreakdownDictionary,
-    type TCalculationBreakdownDictionaryEntry,
     type TCalculationBreakdownLocale,
 } from './calculation-breakdown-human-string.js';
 export {
