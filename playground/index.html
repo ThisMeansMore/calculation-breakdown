@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+            name="description"
+            content="An interactive calculation-breakdown builder playground."
+        />
+        <title>calculation-breakdown playground</title>
+        <link rel="stylesheet" href="./playground.css" />
+    </head>
+    <body>
+        <header class="topbar">
+            <div>
+                <a class="brand" href="../README.md">calculation-breakdown</a>
+                <span class="badge">playground</span>
+            </div>
+            <div class="actions">
+                <button id="reset" class="button button-secondary" type="button">
+                    Reset
+                </button>
+                <button id="run" class="button" type="button">
+                    <span aria-hidden="true">▶</span> Run
+                </button>
+            </div>
+        </header>
+
+        <main class="workspace">
+            <section class="panel editor-panel" aria-labelledby="builder-heading">
+                <div class="panel-heading">
+                    <div>
+                        <span class="step">01</span>
+                        <h1 id="builder-heading">Builder</h1>
+                    </div>
+                    <span>TypeScript</span>
+                </div>
+                <div class="code-editor">
+                    <pre id="builder-highlight" class="code-highlight" aria-hidden="true"></pre>
+                    <textarea id="builder" wrap="off" spellcheck="false" aria-label="Builder TypeScript"></textarea>
+                </div>
+            </section>
+
+            <section class="panel editor-panel" aria-labelledby="css-heading">
+                <div class="panel-heading">
+                    <div>
+                        <span class="step">02</span>
+                        <h2 id="css-heading">Formula CSS</h2>
+                    </div>
+                    <span>Package rendering only</span>
+                </div>
+                <div class="code-editor">
+                    <pre id="css-highlight" class="code-highlight" aria-hidden="true"></pre>
+                    <textarea id="css" spellcheck="false" aria-label="Preview CSS"></textarea>
+                </div>
+            </section>
+
+            <section class="panel preview-panel" aria-labelledby="preview-heading">
+                <div class="panel-heading">
+                    <div>
+                        <span class="step">03</span>
+                        <h2 id="preview-heading">UI preview</h2>
+                    </div>
+                    <div class="panel-heading-meta">
+                        <span>Headless package · demo visualization only</span>
+                        <span id="status" role="status">Ready</span>
+                    </div>
+                </div>
+                <div id="preview" class="preview-stage"></div>
+            </section>
+        </main>
+
+        <template id="preview-template">
+            <article class="calculation-card">
+                <div class="calculation-card__header">
+                    <div class="calculation-card__eyebrow" data-title>Calculation</div>
+                    <div class="language-switcher" role="group" aria-label="Preview language">
+                        <button type="button" data-locale="en" aria-pressed="true">EN</button>
+                        <button type="button" data-locale="cs" aria-pressed="false">CS</button>
+                    </div>
+                </div>
+                <div class="card-controls">
+                    <div class="view-switcher" role="group" aria-label="Preview format">
+                        <button type="button" data-view="table" aria-pressed="true">Table</button>
+                        <button type="button" data-view="formula" aria-pressed="false">Formula</button>
+                        <button type="button" data-view="formula-names" aria-pressed="false">Formula with names</button>
+                    </div>
+                </div>
+                <code class="calculation-card__command" data-command></code>
+                <div class="calculation-card__expression" data-expression></div>
+                <dl class="calculation-card__meta">
+                    <div>
+                        <dt>Result type</dt>
+                        <dd data-result-type></dd>
+                    </div>
+                </dl>
+                <details class="calculation-card__json">
+                    <summary>Serialized breakdown</summary>
+                    <pre data-json></pre>
+                </details>
+            </article>
+        </template>
+
+        <script type="module" src="./playground.js"></script>
+    </body>
+</html>

@@ -1,0 +1,68 @@
+{
+    "name": "calculation-breakdown",
+    "version": "0.1.0",
+    "description": "Typed, serializable breakdowns of calculations performed by financial and billing systems",
+    "type": "module",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ThisMeansMore/calculation-breakdown.git"
+    },
+    "bugs": {
+        "url": "https://github.com/ThisMeansMore/calculation-breakdown/issues"
+    },
+    "homepage": "https://github.com/ThisMeansMore/calculation-breakdown#readme",
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=18"
+    },
+    "files": [
+        "dist",
+        "docs",
+        "README.md",
+        "CHANGELOG.md",
+        "CHANGELOG-ARCHIVE.md",
+        "LICENSE"
+    ],
+    "sideEffects": false,
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.js"
+            },
+            "require": {
+                "types": "./dist/cjs/index.d.ts",
+                "default": "./dist/cjs/index.js"
+            }
+        }
+    },
+    "main": "./dist/cjs/index.js",
+    "types": "./dist/index.d.ts",
+    "scripts": {
+        "build": "node scripts/build.mjs",
+        "docs:sync": "npm run build",
+        "playground": "npm run build && node scripts/playground-server.mjs",
+        "typecheck": "tsc --noEmit -p tsconfig.json && tsc -p test/tsconfig.json && tsc -p test/types/tsconfig.json",
+        "test:unit": "node -e \"require('node:fs').rmSync('.test-dist', { recursive: true, force: true })\" && tsc -p test/tsconfig.build.json && node --test .test-dist/*.spec.js",
+        "test": "npm run build && npm run test:unit && npm run typecheck",
+        "prepack": "npm test",
+        "prepublishOnly": "node scripts/publish-version.mjs --check",
+        "prepare-version": "node scripts/prepare-version.mjs",
+        "publish-version": "node scripts/publish-version.mjs"
+    },
+    "devDependencies": {
+        "@types/node": "^22.0.0",
+        "typescript": "^5.9.3"
+    },
+    "keywords": [
+        "financial",
+        "billing",
+        "accounting",
+        "breakdown",
+        "trace",
+        "typescript"
+    ]
+}

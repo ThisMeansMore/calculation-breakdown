@@ -1,0 +1,19 @@
+title: calculation-breakdown
+description: Typed, serializable calculation breakdowns.
+url: https://thismeansmore.github.io
+baseurl: /calculation-breakdown
+theme: minima
+github_username: ThisMeansMore
+
+header_pages:
+  - playground/index.html
+  - changelog.md
+
+plugins:
+  - jekyll-relative-links
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
