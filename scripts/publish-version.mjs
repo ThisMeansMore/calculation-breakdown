@@ -157,11 +157,16 @@ async function ensureNpmAccess(pkg, registry) {
 
 function runNpmWithClickableAuth(args) {
   return new Promise((resolve, reject) => {
-    const child = spawn('npm', args, {
-      stdio: ['inherit', 'pipe', 'pipe'],
-    });
-    forwardNpmOutput(child.stdout, process.stdout);
-    forwardNpmOutput(child.stderr, process.stderr);
+    const useMacPty = process.platform === 'darwin';
+    const child = spawn(
+      useMacPty ? 'script' : 'npm',
+      useMacPty ? ['-q', '/dev/null', 'npm', ...args] : args,
+      { stdio: useMacPty ? ['inherit', 'pipe', 'pipe'] : 'inherit' },
+    );
+    if (useMacPty) {
+      forwardNpmOutput(child.stdout, process.stdout);
+      forwardNpmOutput(child.stderr, process.stderr);
+    }
     child.once('error', reject);
     child.once('close', code => code === 0
       ? resolve()
