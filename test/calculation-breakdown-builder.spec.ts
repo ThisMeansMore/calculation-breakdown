@@ -161,7 +161,10 @@ describe('CalculationBreakdownBuilder', () => {
             toHumanString(calculation, {
                 locale: 'en',
                 dictionary: {
-                    en: { subtotal: 'subtotal', result: 'result' },
+                    en: {
+                        subtotal: { name: 'subtotal' },
+                        result: { name: 'result' },
+                    },
                 },
             }),
             '(10 = 10 subtotal) = 10 result',
@@ -187,12 +190,12 @@ describe('CalculationBreakdownBuilder', () => {
             locale: 'en',
             dictionary: {
                 en: {
-                    subtotal: 'subtotal',
+                    subtotal: { name: 'subtotal' },
                     taxRate: {
                         name: 'tax rate',
                         description: 'The percentage applied to the subtotal.',
                     },
-                    total: 'invoice total',
+                    total: { name: 'invoice total' },
                 },
             },
         } as const;
@@ -200,9 +203,9 @@ describe('CalculationBreakdownBuilder', () => {
             locale: 'cs',
             dictionary: {
                 cs: {
-                    subtotal: 'mezisoučet',
-                    taxRate: 'sazba daně',
-                    total: 'celkem',
+                    subtotal: { name: 'mezisoučet' },
+                    taxRate: { name: 'sazba daně' },
+                    total: { name: 'celkem' },
                 },
             },
         } as const;
@@ -238,7 +241,7 @@ describe('CalculationBreakdownBuilder', () => {
         assert.equal(
             builder.toHumanString({
                 locale: 'cs',
-                dictionary: { cs: { rate: 'sazba' } },
+                dictionary: { cs: { rate: { name: 'sazba' } } },
             }),
             '0,25% sazba = -20% sazba',
         );

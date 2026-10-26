@@ -518,11 +518,8 @@ function createSemanticEntries(output, calculation, locale) {
         const entry = output.dictionary?.[locale]?.[semantic];
         return {
             semantic,
-            label: typeof entry === 'string' ? entry : (entry?.name ?? semantic),
-            explanation:
-                typeof entry === 'object'
-                    ? entry.description
-                    : `Semantic key: ${semantic}`,
+            label: entry?.name ?? semantic,
+            explanation: entry?.description ?? `Semantic key: ${semantic}`,
             color: SEMANTIC_COLORS[index % SEMANTIC_COLORS.length],
         };
     });
@@ -784,7 +781,7 @@ function appendTrailingOperator(container, operator) {
 
 function formatSemanticValue(value, locale, dictionary) {
     const entry = dictionary[locale]?.[value.semantic];
-    const label = typeof entry === 'string' ? entry : (entry?.name ?? value.semantic);
+    const label = entry?.name ?? value.semantic;
     if (value.type === 'money') {
         return new Intl.NumberFormat(locale, {
             style: 'currency',

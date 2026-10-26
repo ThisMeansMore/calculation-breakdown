@@ -61,12 +61,12 @@ const english = toHumanString(breakdown, {
     includeNames: true,
     dictionary: {
         en: {
-            invoiceSubtotal: 'subtotal',
+            invoiceSubtotal: { name: 'subtotal' },
             taxRate: {
                 name: 'tax rate',
                 description: 'The percentage applied to the subtotal.',
             },
-            invoiceTotal: 'invoice total',
+            invoiceTotal: { name: 'invoice total' },
         },
     },
 });
@@ -120,12 +120,12 @@ const czech = builder.toHumanString({
     locale: 'cs',
     dictionary: {
         cs: {
-            invoiceSubtotal: 'mezisoučet',
+            invoiceSubtotal: { name: 'mezisoučet' },
             taxRate: {
                 name: 'sazba daně',
                 description: 'Procentní sazba použitá pro výpočet daně.',
             },
-            invoiceTotal: 'celkem',
+            invoiceTotal: { name: 'celkem' },
         },
     },
 });
@@ -133,10 +133,10 @@ const czech = builder.toHumanString({
 
 English (`en`) and Czech (`cs`) are supported. The locale controls decimal
 separators and duration-unit names; the dictionary groups domain-specific labels
-by locale. Each semantic accepts a short string or `{ name, description }` for
-richer UIs. Missing dictionary entries fall back to their semantic keys. Rendering
-does not modify the calculation, and `build()` continues to return detached,
-deeply frozen plain JSON data.
+by locale. Each semantic requires `{ name, description? }`, with optional
+explanatory copy for richer UIs. Missing dictionary entries fall back to their
+semantic keys. Rendering does not modify the calculation, and `build()` continues
+to return detached, deeply frozen plain JSON data.
 
 Duration rounding metadata accepts `rounding: 'up' | 'down' | 'nearest'` and a positive numeric `step`. For example, steps `0.1`, `1`, and `10` mean tenths, whole units, and multiples of ten.
 

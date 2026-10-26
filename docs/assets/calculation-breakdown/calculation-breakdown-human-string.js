@@ -39,7 +39,7 @@ function labelValue(value, semantic, options) {
     if (options.includeNames === false)
         return value;
     const entry = options.dictionary[options.locale]?.[semantic];
-    const label = typeof entry === 'string' ? entry : (entry?.name ?? semantic);
+    const label = entry?.name ?? semantic;
     return `${value} ${label}`;
 }
 function renderValue(value, options) {
