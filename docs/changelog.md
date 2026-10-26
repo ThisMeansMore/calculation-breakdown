@@ -8,6 +8,15 @@ title: Changelog
 
 Notable changes, starting with 0.1.0. The latest five releases are detailed here; older releases are archived.
 
+## 0.2.1 — 2026-10-27
+
+### Changes
+
+- Added validated builder restoration from built or JSON-deserialized breakdown objects while preserving semantic types and detaching input data.
+- Expanded human-readable formatting to every BCP 47 locale supported by the host's `Intl` implementation.
+- Improved the mobile playground menu and added content-hashed assets to prevent stale Safari layouts.
+- Made npm publication authentication links short and clickable in narrow ShellFish terminals.
+
 ## 0.2.0 — 2026-10-26
 
 ### Changes
