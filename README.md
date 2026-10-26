@@ -20,50 +20,7 @@ The package has no runtime dependencies and supports browsers and Node.js 18+. *
 npm install calculation-breakdown
 ```
 
-## Playground
-
-The deployed playground is available at
-[thismeansmore.github.io/calculation-breakdown/playground/](https://thismeansmore.github.io/calculation-breakdown/playground/).
-
-Explore the builder, customize the formula rendering with CSS, and see the result in
-a live preview:
-
-```sh
-npm run playground
-```
-
-Then open `http://127.0.0.1:4173/playground/`. The playground runs entirely in
-the browser against the package's built ESM output. Builder and CSS changes are
-previewed automatically, both editors provide syntax coloring, and the locale
-switch demonstrates English and Czech
-human-readable output. The sample UI color-codes values and explains their
-semantics with accessible hover and keyboard-focus tooltips, demonstrating how a product
-can make a calculation trace approachable without changing its serialized data. Its
-money renderer keeps ISO currency codes in metadata while using locale-aware currency
-symbols and placement in the preview. The invoice scenario combines quantity-based
-and duration-based lines, percentage
-discounts, dynamically prorated annual insurance through December 31, subtotal,
-tax, and the final amount in one calculation tree.
-The in-card Table / Formula / Formula with names switch demonstrates an annotated
-expression with optional inline semantic names and an automatically inferred invoice
-view. In the named formula mode, tooltips contain only the longer descriptions. The
-table formatter discovers semantic groups and results directly from the calculation,
-uses dictionary names for column labels, and groups compatible shapes together. It
-contains no invoice-specific content rules.
-Mark selected groups with
-`group(expression, { wrap: true, semantic: 'invoiceLine' })` to give visual
-renderers an explicit line-wrapping hint and a localized group heading. The
-playground honors this metadata.
-
-GitHub Pages deploys the committed `docs/` directory from `main`. `npm run build`
-regenerates it from the playground source and the local ESM build, so the deployed
-demo always exercises the package code from the same commit.
-
-## Releasing
-
-Releases follow the same guarded release-branch workflow as `payload-vars`.
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the exact prepare, review, merge,
-publish, npm-integrity, and GitHub Pages verification steps.
+[Open the interactive playground](https://thismeansmore.github.io/calculation-breakdown/playground/).
 
 ## Usage
 
