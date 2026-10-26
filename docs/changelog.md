@@ -8,7 +8,7 @@ title: Changelog
 
 Notable changes, starting with 0.1.0. The latest five releases are detailed here; older releases are archived.
 
-## Unreleased
+## 0.1.1 — 2026-10-26
 
 - Added the guarded npm, Git tag, release-PR, and GitHub Pages deployment workflow used by `payload-vars`.
 
