@@ -76,6 +76,15 @@ Values use decimal strings so their exact representation survives JSON serializa
 
 Set `includeNames: false` to render only formatted values. It defaults to `true`.
 
+A built object—including one restored from JSON—can initialize another builder.
+The constructor validates and detaches every node, after which the breakdown or
+result can be replaced through the normal fluent methods:
+
+```ts
+const restored = new CalculationBreakdownBuilder(breakdown);
+const copy = restored.build();
+```
+
 ## Builders
 
 - `money(semantic, amount, currency)`
