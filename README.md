@@ -22,6 +22,9 @@ npm install calculation-breakdown
 
 ## Playground
 
+The deployed playground is available at
+[thismeansmore.github.io/calculation-breakdown/playground/](https://thismeansmore.github.io/calculation-breakdown/playground/).
+
 Explore the builder, customize the formula rendering with CSS, and see the result in
 a live preview:
 
@@ -51,6 +54,16 @@ Mark selected groups with
 `group(expression, { wrap: true, semantic: 'invoiceLine' })` to give visual
 renderers an explicit line-wrapping hint and a localized group heading. The
 playground honors this metadata.
+
+GitHub Pages deploys the committed `docs/` directory from `main`. `npm run build`
+regenerates it from the playground source and the local ESM build, so the deployed
+demo always exercises the package code from the same commit.
+
+## Releasing
+
+Releases follow the same guarded release-branch workflow as `payload-vars`.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the exact prepare, review, merge,
+publish, npm-integrity, and GitHub Pages verification steps.
 
 ## Usage
 

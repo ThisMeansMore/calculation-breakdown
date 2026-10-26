@@ -20,7 +20,10 @@
     },
     "files": [
         "dist",
+        "docs",
         "README.md",
+        "CHANGELOG.md",
+        "CHANGELOG-ARCHIVE.md",
         "LICENSE"
     ],
     "sideEffects": false,
@@ -40,11 +43,15 @@
     "types": "./dist/index.d.ts",
     "scripts": {
         "build": "node scripts/build.mjs",
+        "docs:sync": "npm run build",
         "playground": "npm run build && node scripts/playground-server.mjs",
         "typecheck": "tsc --noEmit -p tsconfig.json && tsc -p test/tsconfig.json && tsc -p test/types/tsconfig.json",
         "test:unit": "node -e \"require('node:fs').rmSync('.test-dist', { recursive: true, force: true })\" && tsc -p test/tsconfig.build.json && node --test .test-dist/*.spec.js",
         "test": "npm run build && npm run test:unit && npm run typecheck",
-        "prepack": "npm test"
+        "prepack": "npm test",
+        "prepublishOnly": "node scripts/publish-version.mjs --check",
+        "prepare-version": "node scripts/prepare-version.mjs",
+        "publish-version": "node scripts/publish-version.mjs"
     },
     "devDependencies": {
         "@types/node": "^22.0.0",
