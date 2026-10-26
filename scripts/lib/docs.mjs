@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 
 const root = new URL('../../', import.meta.url);
 const read = path => readFileSync(new URL(path, root), 'utf8');
@@ -25,7 +25,11 @@ export function syncDocs({ check = false } = {}) {
         }
         const browserSource = read('playground/playground.js').replace("from '../dist/index.js'", "from '../assets/calculation-breakdown/index.js'");
         if (browserSource !== read('docs/playground/playground.js')) throw new Error('docs/playground/playground.js is stale.');
-        if (read('dist/index.js') !== read('docs/assets/calculation-breakdown/index.js')) throw new Error('deployed package build is stale.');
+        for (const file of readdirSync(new URL('dist/', root)).filter(file => file.endsWith('.js'))) {
+            if (read(`dist/${file}`) !== read(`docs/assets/calculation-breakdown/${file}`)) {
+                throw new Error(`deployed package module ${file} is stale.`);
+            }
+        }
         return;
     }
     mkdirSync(docs, { recursive: true });
@@ -36,5 +40,7 @@ export function syncDocs({ check = false } = {}) {
     writeFileSync(new URL('docs/playground/playground.js', root), read('playground/playground.js')
         .replace("from '../dist/index.js'", "from '../assets/calculation-breakdown/index.js'"));
     mkdirSync(browserPackage, { recursive: true });
-    cpSync(new URL('dist/index.js', root), new URL('docs/assets/calculation-breakdown/index.js', root));
+    for (const file of readdirSync(new URL('dist/', root)).filter(file => file.endsWith('.js'))) {
+        cpSync(new URL(`dist/${file}`, root), new URL(`docs/assets/calculation-breakdown/${file}`, root));
+    }
 }
