@@ -125,9 +125,10 @@ const czech = builder.toHumanString({
 });
 ```
 
-English (`en`) and Czech (`cs`) are supported. The locale controls decimal
+Any BCP 47 locale supported by the host's `Intl` implementation can control decimal
 separators and duration-unit names; the dictionary groups domain-specific labels
-by locale. Each semantic requires `{ name, description? }`, with optional
+by locale. The playground demonstrates English and Czech. Each semantic requires
+`{ name, description? }`, with optional
 explanatory copy for richer UIs. Missing dictionary entries fall back to their
 semantic keys. Rendering does not modify the calculation, and `build()` continues
 to return detached, deeply frozen plain JSON data.

@@ -5,7 +5,15 @@ const INFIX_OPERATORS = {
     divide: '÷',
 };
 function localizeDecimal(value, locale) {
-    return locale === 'cs' ? value.replace('.', ',') : value;
+    const separator = new Intl.NumberFormat(locale, {
+        useGrouping: false,
+        maximumFractionDigits: 1,
+    })
+        .formatToParts(1.1)
+        .find((part) => part.type === 'decimal')?.value;
+    return separator && separator !== '.'
+        ? value.replace('.', separator)
+        : value;
 }
 function decimalToPercent(value) {
     const negative = value.startsWith('-');
