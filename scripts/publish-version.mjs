@@ -63,7 +63,7 @@ async function publishVersion() {
       console.log(`npm ${pkg.version} already contains this artifact; skipping publication.`);
     } else {
       try {
-        run('npm', ['publish', packed.path, '--registry', registry], { stdio: 'inherit' });
+        await runNpmWithClickableAuth(['publish', packed.path, '--registry', registry]);
       } catch (error) {
         const recovered = await waitForPublishedArtifact(pkg, registry, packed.integrity, 12, false);
         if (!recovered) throw error;
@@ -148,43 +148,43 @@ function ghJson(args, message) {
 async function ensureNpmAccess(pkg, registry) {
   if (hasNpmAccess(pkg, registry)) return;
   console.log(`npm write access is unavailable. Starting \`npm login --registry ${registry}\` before any tag or publication.`);
-  try { await runNpmLogin(registry); }
+  try { await runNpmWithClickableAuth(['login', '--registry', registry]); }
   catch { throw new Error(`npm login failed. Run \`npm login --registry ${registry}\` manually, confirm the account owns ${pkg.name}, then retry publication.`); }
   if (!hasNpmAccess(pkg, registry)) {
     throw new Error(`The authenticated npm account does not have read-write access to ${pkg.name}. Log in with its owner using \`npm login --registry ${registry}\`, then retry.`);
   }
 }
 
-function runNpmLogin(registry) {
+function runNpmWithClickableAuth(args) {
   return new Promise((resolve, reject) => {
-    const child = spawn('npm', ['login', '--registry', registry], {
+    const child = spawn('npm', args, {
       stdio: ['inherit', 'pipe', 'pipe'],
     });
-    forwardLoginOutput(child.stdout, process.stdout);
-    forwardLoginOutput(child.stderr, process.stderr);
+    forwardNpmOutput(child.stdout, process.stdout);
+    forwardNpmOutput(child.stderr, process.stderr);
     child.once('error', reject);
     child.once('close', code => code === 0
       ? resolve()
-      : reject(new Error(`npm login exited with code ${code}.`)));
+      : reject(new Error(`npm ${args[0]} exited with code ${code}.`)));
   });
 }
 
-function forwardLoginOutput(source, destination) {
+function forwardNpmOutput(source, destination) {
   let pending = '';
   source.setEncoding('utf8');
   source.on('data', chunk => {
     pending += chunk;
     const lines = pending.split(/\r?\n/);
     pending = lines.pop() ?? '';
-    for (const line of lines) destination.write(`${formatLoginLine(line)}\n`);
+    for (const line of lines) destination.write(`${formatNpmLine(line)}\n`);
   });
   source.on('end', () => {
-    if (pending) destination.write(formatLoginLine(pending));
+    if (pending) destination.write(formatNpmLine(pending));
   });
 }
 
-function formatLoginLine(line) {
-  return line.replace(/https:\/\/[^\s]+/g, url =>
+function formatNpmLine(line) {
+  return line.replace(/https:\/\/(?:www\.)?npmjs\.com\/auth\/cli\/[^\s]+/g, url =>
     `\u001B]8;;${url}\u0007Open npm authentication\u001B]8;;\u0007`);
 }
 
