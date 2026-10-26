@@ -1,6 +1,6 @@
 {
   "name": "calculation-breakdown",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Typed, serializable breakdowns of calculations performed by financial and billing systems",
   "type": "module",
   "license": "MIT",

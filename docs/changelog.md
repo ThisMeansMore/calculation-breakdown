@@ -8,6 +8,13 @@ title: Changelog
 
 Notable changes, starting with 0.1.0. The latest five releases are detailed here; older releases are archived.
 
+## 0.2.2 — 2026-10-27
+
+### Changes
+
+- Preserved interactive npm authentication through a pseudo-terminal so narrow ShellFish terminals can open a short link without corrupting wrapped URLs.
+- Generated release dates in `Europe/Prague` instead of UTC, preventing the previous date shortly after local midnight.
+
 ## 0.2.1 — 2026-10-27
 
 ### Changes
@@ -37,8 +44,6 @@ Notable changes, starting with 0.1.0. The latest five releases are detailed here
 
 - Added the guarded npm, Git tag, release-PR, and GitHub Pages deployment workflow used by `payload-vars`.
 
-## 0.1.0 — 2026-10-26
+## Older releases
 
-### Added
-
-- Added the typed calculation breakdown builder, localized human-readable formatter, and interactive invoice playground.
+- [0.1.0 — 2026-10-26](CHANGELOG-ARCHIVE.md#010--2026-10-26) — Added the typed calculation breakdown builder, localized human-readable formatter, and interactive invoice playground.
