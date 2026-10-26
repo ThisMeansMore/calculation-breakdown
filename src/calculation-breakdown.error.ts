@@ -9,6 +9,7 @@ export type TCalculationBreakdownErrorCode =
     | 'INVALID_ROUNDING_STEP'
     | 'INVALID_GROUP_ROLE'
     | 'INVALID_GROUP_ORIENTATION'
+    | 'INVALID_NODE'
     | 'MISSING_BREAKDOWN'
     | 'MISSING_RESULT';
 

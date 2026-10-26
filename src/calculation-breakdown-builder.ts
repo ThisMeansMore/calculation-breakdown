@@ -187,6 +187,21 @@ export class CalculationBreakdownBuilder<Semantic extends string> {
         };
 
     /**
+     * Creates an empty builder or restores one from a previously built object.
+     *
+     * Restored nodes are reconstructed through the same runtime validation as
+     * newly authored nodes and do not retain references to the supplied object.
+     */
+    constructor(calculation?: ICalculationBreakdown<Semantic>) {
+        if (calculation === undefined) return;
+        if (!calculation || typeof calculation !== 'object') {
+            throw this.invalidNode(calculation);
+        }
+        this.breakdownValue = this.hydrateNode(calculation.breakdown);
+        this.resultValue = this.hydrateValue(calculation.result);
+    }
+
+    /**
      * Sets the root node that describes the calculation.
      *
      * @param create - Callback that describes the calculation using typed factories.
@@ -248,6 +263,95 @@ export class CalculationBreakdownBuilder<Semantic extends string> {
         options: ICalculationBreakdownHumanStringOptions<Semantic>,
     ): string {
         return toHumanString(this.build(), options);
+    }
+
+    private hydrateNode(
+        node: TCalculationBreakdownNode<Semantic>,
+    ): TCalculationBreakdownNode<Semantic> {
+        if (!node || typeof node !== 'object') {
+            throw this.invalidNode(node);
+        }
+        if (
+            node.type === 'money' ||
+            node.type === 'duration' ||
+            node.type === 'number' ||
+            node.type === 'percent'
+        ) {
+            return this.hydrateValue(node);
+        }
+        if (node.type === 'constant') return this.createConstant(node.value);
+        if (node.type === 'operation') {
+            if (!Array.isArray(node.operands) || node.operands.length !== 2) {
+                throw this.invalidNode(node);
+            }
+            return this.createOperation(
+                this.hydrateNode(node.operands[0]),
+                node.operator,
+                this.hydrateNode(node.operands[1]),
+            );
+        }
+        if (node.type === 'group') {
+            return this.createGroup(this.hydrateNode(node.expression), {
+                ...(node.wrap !== undefined ? { wrap: node.wrap } : {}),
+                ...(node.semantic !== undefined
+                    ? { semantic: node.semantic }
+                    : {}),
+                ...(node.result !== undefined
+                    ? { result: this.hydrateValue(node.result) }
+                    : {}),
+                ...(node.role !== undefined ? { role: node.role } : {}),
+                ...(node.orientation !== undefined
+                    ? { orientation: node.orientation }
+                    : {}),
+            });
+        }
+        throw this.invalidNode(node);
+    }
+
+    private hydrateValue(
+        value: TCalculationBreakdownValue<Semantic>,
+    ): TCalculationBreakdownValue<Semantic> {
+        if (!value || typeof value !== 'object') {
+            throw this.invalidNode(value);
+        }
+        if (value.type === 'money') {
+            return this.createMoney(
+                value.semantic,
+                value.amount,
+                value.currency,
+            );
+        }
+        if (value.type === 'duration') {
+            return this.createDuration(
+                value.semantic,
+                value.amount,
+                value.unit,
+                {
+                    ...(value.rounding !== undefined
+                        ? { rounding: value.rounding }
+                        : {}),
+                    ...(value.step !== undefined ? { step: value.step } : {}),
+                },
+            );
+        }
+        if (value.type === 'number') {
+            return this.createNumber(value.semantic, value.value);
+        }
+        if (value.type === 'percent') {
+            return this.createPercent(value.semantic, value.value);
+        }
+        throw this.invalidNode(value);
+    }
+
+    private invalidNode(value: unknown): CalculationBreakdownError {
+        const type =
+            typeof value === 'object' && value !== null && 'type' in value
+                ? String(value.type)
+                : String(value);
+        return new CalculationBreakdownError(
+            'INVALID_NODE',
+            `Unsupported calculation node: ${type}`,
+        );
     }
 
     private createMoney(

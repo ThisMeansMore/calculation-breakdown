@@ -17,6 +17,12 @@ builder.breakdown(({ money, duration, divide }) => {
 builder.result(({ duration }) => duration('coverage', '10', 'days')).build();
 
 const calculation = builder.build();
+const restored = new CalculationBreakdownBuilder(calculation);
+restored.build();
+restored.breakdown(({ money }) => {
+    // @ts-expect-error restored builders retain the source semantic union
+    return money('unknown', '1.00', 'EUR');
+});
 toHumanString(calculation, {
     locale: 'en',
     includeNames: false,

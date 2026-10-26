@@ -363,6 +363,35 @@ describe('CalculationBreakdownBuilder', () => {
         assert.deepEqual(JSON.parse(JSON.stringify(breakdown)), breakdown);
     });
 
+    it('restores a detached builder from a built object', () => {
+        const original = new CalculationBreakdownBuilder<
+            'price' | 'total'
+        >()
+            .breakdown(({ money, constant, multiply }) =>
+                multiply(money('price', '100.00', 'EUR'), constant('0.9')),
+            )
+            .result(({ money }) => money('total', '90.00', 'EUR'))
+            .build();
+        const serialized = JSON.parse(JSON.stringify(original));
+        const restored = new CalculationBreakdownBuilder(serialized);
+
+        serialized.result.amount = '1.00';
+        assert.deepEqual(restored.build(), original);
+        assert.notEqual(restored.build(), original);
+        assert.equal(
+            restored.toHumanString({
+                locale: 'en',
+                dictionary: {
+                    en: {
+                        price: { name: 'price' },
+                        total: { name: 'total' },
+                    },
+                },
+            }),
+            '100.00 EUR price × 0.9 = 90.00 EUR total',
+        );
+    });
+
     it('requires a breakdown and result', () => {
         assert.throws(
             () => new CalculationBreakdownBuilder().build(),
@@ -423,6 +452,14 @@ describe('CalculationBreakdownBuilder', () => {
                         rounding: 'up',
                         step: 0,
                     }),
+            },
+            {
+                code: 'INVALID_NODE',
+                run: () =>
+                    new CalculationBreakdownBuilder({
+                        breakdown: { type: 'unknown' },
+                        result: { type: 'number', semantic: 'total', value: '1' },
+                    } as any),
             },
         ];
 
