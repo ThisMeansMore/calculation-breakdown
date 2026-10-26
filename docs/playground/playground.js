@@ -3,7 +3,7 @@ import {
     toHumanString,
 } from '../assets/calculation-breakdown/index.js';
 
-const DEFAULT_BUILDER = `// Derive calendar-day counts in UTC to avoid daylight-saving offsets.
+const DEFAULT_BUILDER_WITH_LOCALE = `// Derive calendar-day counts in UTC to avoid daylight-saving offsets.
 const helper = {
   now: new Date(),
   get year() { return this.now.getFullYear(); },
@@ -179,6 +179,35 @@ return {
   dictionary, // Optional: comment out this line to use semantic keys directly.
 };`;
 
+const localeMetadataStart = DEFAULT_BUILDER_WITH_LOCALE.indexOf(
+    '\n// Optional localized title',
+);
+const DEFAULT_BUILDER_CORE = DEFAULT_BUILDER_WITH_LOCALE.slice(
+    0,
+    localeMetadataStart,
+);
+const DEFAULT_LOCALE_METADATA = DEFAULT_BUILDER_WITH_LOCALE.slice(
+    localeMetadataStart,
+);
+const DEFAULT_MINIMAL_EXPORT = `
+
+// Export only the calculation; renderers fall back to its semantic keys.
+return { calculation: invoice };`;
+const DEFAULT_BUILDER = `${DEFAULT_BUILDER_CORE}${DEFAULT_MINIMAL_EXPORT}`;
+
+function setBuilderLocaleMode(source, useLocale) {
+    const localizedStart = source.indexOf('\n// Optional localized title');
+    const hasMinimalExport = source.endsWith(DEFAULT_MINIMAL_EXPORT);
+    const core = localizedStart >= 0
+        ? source.slice(0, localizedStart)
+        : hasMinimalExport
+            ? source.slice(0, -DEFAULT_MINIMAL_EXPORT.length)
+            : source;
+
+    if (localizedStart < 0 && !hasMinimalExport) return source;
+    return `${core}${useLocale ? DEFAULT_LOCALE_METADATA : DEFAULT_MINIMAL_EXPORT}`;
+}
+
 const DEFAULT_CSS = `.calculation-card__expression {
   font: 650 14px/1.45 Inter, system-ui, sans-serif;
   white-space: nowrap;
@@ -325,6 +354,7 @@ const elements = {
     status: document.querySelector('#status'),
     run: document.querySelector('#run'),
     reset: document.querySelector('#reset'),
+    useLocale: document.querySelector('#use-locale'),
 };
 
 let updateTimer;
@@ -1114,10 +1144,16 @@ function render() {
         hideTooltip();
         const output = evaluateBuilder(elements.builder.value);
         const locale = selectedLocale;
-        const dictionary = output.dictionary ?? {};
+        const useLocale = elements.useLocale.checked;
+        const dictionary = useLocale ? output.dictionary ?? {} : {};
+        const hasLocalization = useLocale && Boolean(
+            output.title || output.dictionary,
+        );
         const examples = output.examples ?? [
             {
-                title: output.title ?? { en: 'Calculation', cs: 'Výpočet' },
+                title: useLocale
+                    ? output.title ?? { en: 'Calculation', cs: 'Výpočet' }
+                    : undefined,
                 calculation: output.calculation,
             },
         ];
@@ -1128,6 +1164,10 @@ function render() {
             const fragment = elements.template.content.cloneNode(true);
             const calculation = example.calculation;
             const entries = createSemanticEntries(output, calculation, locale);
+            const languageSwitcher = fragment.querySelector(
+                '.language-switcher',
+            );
+            languageSwitcher.hidden = !hasLocalization;
 
             for (const button of fragment.querySelectorAll('[data-locale]')) {
                 const isActive = button.dataset.locale === locale;
@@ -1170,7 +1210,9 @@ function render() {
             fragment.querySelector('[data-result-type]').textContent =
                 calculation.result.type;
             const includeNames = selectedView === 'formula-names';
-            const command = `toHumanString(calculation, { locale: '${locale}', dictionary, includeNames: ${includeNames} })`;
+            const command = useLocale
+                ? `toHumanString(calculation, { locale: '${locale}', dictionary, includeNames: ${includeNames} })`
+                : `toHumanString(calculation, { includeNames: ${includeNames} })`;
             const commandElement = fragment.querySelector('[data-command]');
             commandElement.hidden = selectedView === 'table';
             commandElement.innerHTML = highlight(
@@ -1214,6 +1256,7 @@ function scheduleRender() {
 }
 
 function reset() {
+    elements.useLocale.checked = false;
     elements.builder.value = DEFAULT_BUILDER;
     elements.css.value = DEFAULT_CSS;
     selectedLocale = 'en';
@@ -1245,6 +1288,15 @@ for (const editor of [elements.builder, elements.css]) {
 
 elements.run.addEventListener('click', render);
 elements.reset.addEventListener('click', reset);
+elements.useLocale.addEventListener('change', () => {
+    selectedLocale = 'en';
+    elements.builder.value = setBuilderLocaleMode(
+        elements.builder.value,
+        elements.useLocale.checked,
+    );
+    updateHighlights();
+    render();
+});
 elements.preview.addEventListener('scroll', hideTooltip, { passive: true });
 window.addEventListener('resize', hideTooltip, { passive: true });
 
