@@ -195,7 +195,8 @@ function checkGeneratedDocs(version) {
 function packPackage(pkg) {
   const directory = mkdtempSync(join(tmpdir(), 'calculation-breakdown-publish-'));
   try {
-    const result = JSON.parse(run('npm', ['pack', '--json', '--pack-destination', directory]));
+    // Tests already ran above; suppress lifecycle output so --json remains parseable.
+    const result = JSON.parse(run('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', directory]));
     const packs = Array.isArray(result) ? result : Object.values(result ?? {});
     if (packs.length !== 1 || packs[0]?.name !== pkg.name || packs[0]?.version !== pkg.version
       || !packs[0]?.integrity || !packs[0]?.filename) throw new Error('Packed artifact does not match the merged release version. Fix packaging on a feature branch and prepare a new release PR.');

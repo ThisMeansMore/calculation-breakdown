@@ -2,6 +2,10 @@
 
 Notable changes, starting with 0.1.0. The latest five releases are detailed here; older releases are archived.
 
+## Unreleased
+
+- Fixed the deployed playground by including every browser ESM module, and kept release artifact inspection JSON-safe by suppressing duplicate package lifecycle scripts.
+
 ## 0.1.1 — 2026-10-26
 
 - Added the guarded npm, Git tag, release-PR, and GitHub Pages deployment workflow used by `payload-vars`.
