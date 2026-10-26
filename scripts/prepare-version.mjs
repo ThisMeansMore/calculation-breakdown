@@ -36,7 +36,7 @@ try {
     lock.version = version;
     lock.packages[''].version = version;
     for (const [path, data] of [['package.json', pkg], ['package-lock.json', lock]]) writeFileSync(path, `${JSON.stringify(data, null, 2)}\n`);
-    const date = new Date().toISOString().slice(0, 10);
+    const date = releaseDate();
     const release = `## ${version} — ${date}\n\n<!-- requires-review -->\n\n${notes}\n\n`;
     const prepared = pending.length
       ? changelog.replace(/^## Unreleased\r?\n([\s\S]*?)(?=^## |$(?![\s\S]))/m, release)
@@ -68,4 +68,16 @@ function insertRelease(changelog, release) {
   const firstSection = changelog.search(/^## /m);
   if (firstSection < 0) return `${changelog.trimEnd()}\n\n${release}`;
   return changelog.slice(0, firstSection) + release + changelog.slice(firstSection);
+}
+
+function releaseDate(date = new Date()) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en', {
+      timeZone: 'Europe/Prague',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(date).map(part => [part.type, part.value]),
+  );
+  return `${parts.year}-${parts.month}-${parts.day}`;
 }
