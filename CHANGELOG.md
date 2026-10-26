@@ -2,6 +2,16 @@
 
 Notable changes, starting with 0.1.0. The latest five releases are detailed here; older releases are archived.
 
+## 0.2.0 — 2026-10-26
+
+### Changes
+
+- fix: mirror README on Pages root
+- fix: show playground in Pages navigation
+- feat: add playground site navigation
+- docs: shorten playground reference
+- feat!: require object dictionary entries
+
 ## 0.1.2 — 2026-10-26
 
 - Added an opt-in locale mode to the playground that preserves calculation edits, keeps the default example limited to the calculation, and falls back to semantic keys without generated dictionary placeholders.
