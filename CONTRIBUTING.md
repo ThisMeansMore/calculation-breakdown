@@ -44,4 +44,4 @@ Publication requires GitHub protection to require PRs with zero approvals and ad
 
 **✋ MANUAL — Only if publication fails:** follow the corrective instruction in the error and rerun `npm run publish-version` for the same merged version. Durable checkpoints are the Git tag, npm artifact integrity, and Pages commit; an identical tag or package is reused. Never prepare another version, move a tag, or publish from a feature/release branch. Creating a GitHub Release page is optional and separate.
 
-README, CHANGELOG, and CHANGELOG-ARCHIVE are the documentation sources; the Pages-only footer lives in `docs/_includes/home-footer.md`. Builds, tests, and release commands generate the Pages files automatically. Internal review markers are hidden on Pages.
+README, CHANGELOG, and CHANGELOG-ARCHIVE are the documentation sources. Builds, tests, and release commands generate the Pages files automatically. The Pages root mirrors README, and internal review markers are hidden on Pages.
