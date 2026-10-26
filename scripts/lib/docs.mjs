@@ -12,6 +12,7 @@ export function syncDocs({ check = false } = {}) {
     const docs = new URL('docs/', root);
     const playground = new URL('docs/playground/', root);
     const browserPackage = new URL('docs/assets/calculation-breakdown/', root);
+    const playgroundPage = `---\ntitle: Playground\nlayout: null\n---\n${read('playground/index.html')}`;
     const files = new Map([
         ['docs/index.md', `---\ntitle: calculation-breakdown\n---\n\n<!-- Generated from README.md. Do not edit directly. -->\n\n${read('README.md').trimEnd()}\n`],
         ['docs/changelog.md', `---\ntitle: Changelog\n---\n\n<!-- Generated from CHANGELOG.md. Do not edit directly. -->\n\n${stripReviewMarkers(read('CHANGELOG.md')).trimEnd()}\n`],
@@ -19,9 +20,8 @@ export function syncDocs({ check = false } = {}) {
     ]);
     if (check) {
         for (const [path, contents] of files) if (read(path) !== contents) throw new Error(`${path} is stale. Run npm run docs:sync.`);
-        for (const path of ['index.html', 'playground.css']) {
-            if (read(`playground/${path}`) !== read(`docs/playground/${path}`)) throw new Error(`docs/playground/${path} is stale.`);
-        }
+        if (playgroundPage !== read('docs/playground/index.html')) throw new Error('docs/playground/index.html is stale.');
+        if (read('playground/playground.css') !== read('docs/playground/playground.css')) throw new Error('docs/playground/playground.css is stale.');
         const browserSource = read('playground/playground.js').replace("from '../dist/index.js'", "from '../assets/calculation-breakdown/index.js'");
         if (browserSource !== read('docs/playground/playground.js')) throw new Error('docs/playground/playground.js is stale.');
         for (const file of readdirSync(new URL('dist/', root)).filter(file => file.endsWith('.js'))) {
@@ -36,6 +36,7 @@ export function syncDocs({ check = false } = {}) {
     rmSync(playground, { recursive: true, force: true });
     rmSync(browserPackage, { recursive: true, force: true });
     cpSync(new URL('playground/', root), playground, { recursive: true });
+    writeFileSync(new URL('docs/playground/index.html', root), playgroundPage);
     writeFileSync(new URL('docs/playground/playground.js', root), read('playground/playground.js')
         .replace("from '../dist/index.js'", "from '../assets/calculation-breakdown/index.js'"));
     mkdirSync(browserPackage, { recursive: true });
