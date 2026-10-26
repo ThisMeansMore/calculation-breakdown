@@ -10,6 +10,7 @@ Notable changes, starting with 0.1.0. The latest five releases are detailed here
 
 ## Unreleased
 
+- Made the playground vertically scrollable and its three panels usable on mobile screens.
 - Fixed the deployed playground by including every browser ESM module, and kept release artifact inspection JSON-safe by suppressing duplicate package lifecycle scripts.
 
 ## 0.1.1 — 2026-10-26
