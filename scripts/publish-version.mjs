@@ -1,6 +1,7 @@
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { spawn } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
 import { isDeepStrictEqual } from 'node:util';
 import {
@@ -40,7 +41,7 @@ async function publishVersion() {
   checkMergedRelease(pkg);
   const { pages } = checkGitHub(pkg.version, commit);
   const registry = pkg.publishConfig?.registry ?? run('npm', ['config', 'get', 'registry']);
-  ensureNpmAccess(pkg, registry);
+  await ensureNpmAccess(pkg, registry);
 
   runTests();
   assertClean();
@@ -144,14 +145,47 @@ function ghJson(args, message) {
   return githubJson(args, message);
 }
 
-function ensureNpmAccess(pkg, registry) {
+async function ensureNpmAccess(pkg, registry) {
   if (hasNpmAccess(pkg, registry)) return;
   console.log(`npm write access is unavailable. Starting \`npm login --registry ${registry}\` before any tag or publication.`);
-  try { run('npm', ['login', '--registry', registry], { stdio: 'inherit' }); }
+  try { await runNpmLogin(registry); }
   catch { throw new Error(`npm login failed. Run \`npm login --registry ${registry}\` manually, confirm the account owns ${pkg.name}, then retry publication.`); }
   if (!hasNpmAccess(pkg, registry)) {
     throw new Error(`The authenticated npm account does not have read-write access to ${pkg.name}. Log in with its owner using \`npm login --registry ${registry}\`, then retry.`);
   }
+}
+
+function runNpmLogin(registry) {
+  return new Promise((resolve, reject) => {
+    const child = spawn('npm', ['login', '--registry', registry], {
+      stdio: ['inherit', 'pipe', 'pipe'],
+    });
+    forwardLoginOutput(child.stdout, process.stdout);
+    forwardLoginOutput(child.stderr, process.stderr);
+    child.once('error', reject);
+    child.once('close', code => code === 0
+      ? resolve()
+      : reject(new Error(`npm login exited with code ${code}.`)));
+  });
+}
+
+function forwardLoginOutput(source, destination) {
+  let pending = '';
+  source.setEncoding('utf8');
+  source.on('data', chunk => {
+    pending += chunk;
+    const lines = pending.split(/\r?\n/);
+    pending = lines.pop() ?? '';
+    for (const line of lines) destination.write(`${formatLoginLine(line)}\n`);
+  });
+  source.on('end', () => {
+    if (pending) destination.write(formatLoginLine(pending));
+  });
+}
+
+function formatLoginLine(line) {
+  return line.replace(/https:\/\/[^\s]+/g, url =>
+    `\u001B]8;;${url}\u0007Open npm authentication\u001B]8;;\u0007`);
 }
 
 function hasNpmAccess(pkg, registry) {
