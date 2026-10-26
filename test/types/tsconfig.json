@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "exactOptionalPropertyTypes": true,
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "noEmit": true,
+        "paths": {
+            "calculation-breakdown": ["../../dist/index.d.ts"]
+        },
+        "strict": true,
+        "target": "ES2022",
+        "types": []
+    },
+    "include": ["./*.ts"]
+}
