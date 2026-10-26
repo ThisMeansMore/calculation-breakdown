@@ -6,7 +6,7 @@ title: calculation-breakdown
 
 # calculation-breakdown
 
-Package version: v0.1.0
+Package version: v0.1.1
 
 Typed, serializable breakdowns of calculations performed elsewhere.
 
