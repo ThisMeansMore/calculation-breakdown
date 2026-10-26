@@ -2,7 +2,7 @@
 
 Notable changes, starting with 0.1.0. The latest five releases are detailed here; older releases are archived.
 
-## Unreleased
+## 0.1.2 — 2026-10-26
 
 - Added an opt-in locale mode to the playground that preserves calculation edits, keeps the default example limited to the calculation, and falls back to semantic keys without generated dictionary placeholders.
 - Made the playground vertically scrollable and its three panels usable on mobile screens.
