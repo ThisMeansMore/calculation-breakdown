@@ -1080,14 +1080,20 @@ function render() {
             fragment.querySelector('[data-title]').textContent =
                 example.title?.[locale] ?? 'Calculation';
             const expression = fragment.querySelector('[data-expression]');
+            const presentation = toPresentation(calculation);
             if (selectedView === 'table') {
                 appendTableView(
                     expression,
-                    toPresentation(calculation),
+                    presentation,
                     entries,
                     locale,
                     dictionary,
                 );
+            } else if (selectedView === 'presentation') {
+                const output = document.createElement('pre');
+                output.className = 'calculation-card__presentation';
+                output.textContent = JSON.stringify(presentation, null, 2);
+                expression.append(output);
             } else {
                 appendAnnotatedCalculation(
                     expression,
@@ -1100,11 +1106,14 @@ function render() {
             fragment.querySelector('[data-result-type]').textContent =
                 calculation.result.type;
             const includeNames = selectedView === 'formula-names';
-            const command = useLocale
-                ? `toHumanString(calculation, { locale: '${locale}', dictionary, includeNames: ${includeNames} })`
-                : `toHumanString(calculation, { includeNames: ${includeNames} })`;
+            const command = selectedView === 'table'
+                ? 'const presentation = toPresentation(calculation);'
+                : selectedView === 'presentation'
+                    ? 'toPresentation(calculation)'
+                    : useLocale
+                        ? `toHumanString(calculation, { locale: '${locale}', dictionary, includeNames: ${includeNames} })`
+                        : `toHumanString(calculation, { includeNames: ${includeNames} })`;
             const commandElement = fragment.querySelector('[data-command]');
-            commandElement.hidden = selectedView === 'table';
             commandElement.innerHTML = highlight(
                 command,
                 'typescript',
