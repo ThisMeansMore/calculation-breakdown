@@ -6,7 +6,7 @@ import {
     toPresentation,
 } from '../dist/index.js';
 
-describe('toPresentation', () => {
+describe('CalculationBreakdownBuilder.toPresentation', () => {
     it('turns a result group and its nested result groups into a section', () => {
         type Semantic =
             | 'credit'
@@ -74,11 +74,16 @@ describe('toPresentation', () => {
             ],
         };
 
-        const presentation = toPresentation(builder.build());
+        const calculation = builder.build();
+        const presentation = toPresentation(calculation);
         assert.deepEqual(presentation, expected);
         assert.ok(Object.isFrozen(presentation));
         assert.ok(Object.isFrozen(presentation.sections[0]?.rows[0]));
         assert.deepEqual(builder.toPresentation(), expected);
+        assert.deepEqual(
+            new CalculationBreakdownBuilder(calculation).toPresentation(),
+            expected,
+        );
     });
 
     it('creates a fallback section and preserves presentation value metadata', () => {
@@ -94,29 +99,32 @@ describe('toPresentation', () => {
             )
             .build();
 
-        assert.deepEqual(toPresentation(calculation), {
-            sections: [
-                {
-                    id: 'period',
-                    rows: [
-                        {
-                            id: 'period',
-                            duration: { amount: '271.65', unit: 'days' },
-                        },
-                    ],
-                    result: {
+        assert.deepEqual(
+            new CalculationBreakdownBuilder(calculation).toPresentation(),
+            {
+                sections: [
+                    {
                         id: 'period',
-                        operator: 'equals',
-                        duration: {
-                            amount: '271.7',
-                            unit: 'days',
-                            rounding: 'up',
-                            step: 0.1,
+                        rows: [
+                            {
+                                id: 'period',
+                                duration: { amount: '271.65', unit: 'days' },
+                            },
+                        ],
+                        result: {
+                            id: 'period',
+                            operator: 'equals',
+                            duration: {
+                                amount: '271.7',
+                                unit: 'days',
+                                rounding: 'up',
+                                step: 0.1,
+                            },
                         },
                     },
-                },
-            ],
-        });
+                ],
+            },
+        );
     });
 
     it('represents numbers and percentages with one typed property', () => {
@@ -127,9 +135,13 @@ describe('toPresentation', () => {
             .result(({ number }) => number('count', '2'))
             .build();
 
-        assert.deepEqual(toPresentation(calculation).sections[0]?.rows, [
-            { id: 'count', number: { value: '2' } },
-            { id: 'rate', operator: 'add', percent: { value: '0.20' } },
-        ]);
+        assert.deepEqual(
+            new CalculationBreakdownBuilder(calculation).toPresentation()
+                .sections[0]?.rows,
+            [
+                { id: 'count', number: { value: '2' } },
+                { id: 'rate', operator: 'add', percent: { value: '0.20' } },
+            ],
+        );
     });
 });
