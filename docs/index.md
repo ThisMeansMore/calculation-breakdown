@@ -169,7 +169,19 @@ returned as one fallback section.
 
 Group IDs identify explanatory occurrences and can be used as frontend keys;
 they are not mathematical references. When an ID is omitted, the group's
-semantic is used. The builder provides `builder.toPresentation()` as a
-convenience for transforming its built calculation.
+semantic is used.
+
+When the application already has a builder—or wants to validate and detach a
+serialized AST through the builder first—the equivalent instance method is
+available:
+
+```ts
+const presentation = new CalculationBreakdownBuilder(
+    calculation,
+).toPresentation();
+```
+
+The instance method builds the validated calculation and delegates to the same
+`toPresentation` transformation.
 
 The built output is detached and deeply frozen. It contains no localized text, HTML, CSS, colors, or executable calculation logic, making it suitable for transport and storage across financial applications.
