@@ -413,8 +413,11 @@ function highlight(source, language) {
 
 function updateHighlight(editor, layer, language) {
     layer.innerHTML = highlight(editor.value, language);
-    layer.scrollTop = editor.scrollTop;
-    layer.scrollLeft = editor.scrollLeft;
+    syncHighlightScroll(editor, layer);
+}
+
+function syncHighlightScroll(editor, layer) {
+    layer.style.transform = `translate(${-editor.scrollLeft}px, ${-editor.scrollTop}px)`;
 }
 
 function updateHighlights() {
@@ -1180,8 +1183,7 @@ for (const editor of [elements.builder, elements.css]) {
             editor === elements.builder
                 ? elements.builderHighlight
                 : elements.cssHighlight;
-        layer.scrollTop = editor.scrollTop;
-        layer.scrollLeft = editor.scrollLeft;
+        syncHighlightScroll(editor, layer);
     });
 }
 
