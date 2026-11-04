@@ -2,6 +2,12 @@
 
 Notable changes, starting with 0.1.0. The latest five releases are detailed here; older releases are archived.
 
+## 0.2.3 — 2026-11-04
+
+### Changes
+
+- feat: add simplified presentation output
+
 ## 0.2.2 — 2026-10-27
 
 ### Changes
@@ -34,10 +40,7 @@ Notable changes, starting with 0.1.0. The latest five releases are detailed here
 - Made the playground vertically scrollable and its three panels usable on mobile screens.
 - Fixed the deployed playground by including every browser ESM module, and kept release artifact inspection JSON-safe by suppressing duplicate package lifecycle scripts.
 
-## 0.1.1 — 2026-10-26
-
-- Added the guarded npm, Git tag, release-PR, and GitHub Pages deployment workflow used by `payload-vars`.
-
 ## Older releases
 
+- [0.1.1 — 2026-10-26](CHANGELOG-ARCHIVE.md#011--2026-10-26) — Added the guarded npm, Git tag, release-PR, and GitHub Pages deployment workflow used by `payload-vars`.
 - [0.1.0 — 2026-10-26](CHANGELOG-ARCHIVE.md#010--2026-10-26) — Added the typed calculation breakdown builder, localized human-readable formatter, and interactive invoice playground.
