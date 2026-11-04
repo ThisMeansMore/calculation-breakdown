@@ -87,6 +87,8 @@ export interface ICalculationBreakdownOperation<Semantic extends string> {
 export interface ICalculationBreakdownGroupOptions<
     Semantic extends string = string,
 > {
+    /** Stable identity of this explanatory group occurrence. */
+    readonly id?: string;
     /** Suggests that renderers place this group on its own visual line. */
     readonly wrap?: boolean;
     /** Domain-specific meaning of the grouped expression. */

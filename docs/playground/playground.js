@@ -1,6 +1,7 @@
 import {
     CalculationBreakdownBuilder,
     toHumanString,
+    toPresentation,
 } from '../assets/calculation-breakdown/index.js';
 
 const DEFAULT_BUILDER_WITH_LOCALE = `// Derive calendar-day counts in UTC to avoid daylight-saving offsets.
@@ -533,47 +534,6 @@ function useDescriptionOnlyTooltip(container, cell, entries) {
     }
 }
 
-function collectResultGroups(node, groups = [], headingSemantic) {
-    if (node.type === 'operation') {
-        node.operands.forEach((operand) =>
-            collectResultGroups(operand, groups, headingSemantic),
-        );
-    } else if (node.type === 'group') {
-        const nestedHeading = node.result
-            ? headingSemantic
-            : (node.semantic ?? headingSemantic);
-        collectResultGroups(node.expression, groups, nestedHeading);
-        if (node.semantic && node.result) {
-            groups.push({ ...node, tableHeadingSemantic: headingSemantic });
-        }
-    }
-    return groups;
-}
-
-function collectUniqueValues(node, values = [], seen = new Set()) {
-    if (node.type === 'operation') {
-        node.operands.forEach((operand) => collectUniqueValues(operand, values, seen));
-    } else if (node.type === 'group') {
-        collectUniqueValues(node.expression, values, seen);
-    } else if (node.type !== 'constant' && !seen.has(node.semantic)) {
-        seen.add(node.semantic);
-        values.push(node);
-    }
-    return values;
-}
-
-function groupValues(group) {
-    const values = collectUniqueValues(group.expression);
-    if (!values.some(({ semantic }) => semantic === group.result.semantic)) {
-        values.push(group.result);
-    }
-    return values;
-}
-
-function valueSignature(group) {
-    return groupValues(group).map(({ semantic }) => semantic).join('|');
-}
-
 function appendValueCell(container, value, entries, locale, dictionary) {
     appendAnnotatedNode(container, value, entries, locale, dictionary);
     useDescriptionOnlyTooltip(container, value, entries);
@@ -588,68 +548,18 @@ function createTable(className = 'calculation-table') {
     return { sectionContainer, table };
 }
 
-function appendColumnSection(container, groups, entries, locale, dictionary) {
-    const { sectionContainer, table } = createTable();
-    const values = groupValues(groups[0]);
-    const head = table.createTHead();
-    const headingRow = head.insertRow();
-    const identityHeading = document.createElement('th');
-    identityHeading.scope = 'col';
-    if (groups[0].tableHeadingSemantic) {
-        identityHeading.textContent = entries.find(
-            ({ semantic }) =>
-                semantic === groups[0].tableHeadingSemantic,
-        )?.label ?? groups[0].tableHeadingSemantic;
+function presentationRowValue(row) {
+    if (row.money) return { type: 'money', semantic: row.id, ...row.money };
+    if (row.duration) {
+        return { type: 'duration', semantic: row.id, ...row.duration };
     }
-    headingRow.append(identityHeading);
-    for (const value of values) {
-        const heading = document.createElement('th');
-        heading.scope = 'col';
-        heading.textContent = entries.find(
-            ({ semantic }) => semantic === value.semantic,
-        )?.label ?? value.semantic;
-        heading.style.setProperty('--cell-align', 'right');
-        headingRow.append(heading);
-    }
-    const body = table.createTBody();
-    for (const group of groups) {
-        const tableRow = body.insertRow();
-        const labelCell = tableRow.insertCell();
-        appendGroupLabel(labelCell, group.semantic, entries);
-        useDescriptionOnlyTooltip(labelCell, group, entries);
-        for (const value of groupValues(group)) {
-            const tableCell = tableRow.insertCell();
-            tableCell.style.setProperty('--cell-align', 'right');
-            appendValueCell(tableCell, value, entries, locale, dictionary);
-        }
-    }
-    container.append(sectionContainer);
+    if (row.number) return { type: 'number', semantic: row.id, ...row.number };
+    return { type: 'percent', semantic: row.id, ...row.percent };
 }
 
-function appendResultsSection(container, groups, entries, locale, dictionary) {
-    const { sectionContainer, table } = createTable(
-        'calculation-table calculation-table--results',
-    );
-    const body = table.createTBody();
-    for (const group of groups) {
-        const row = body.insertRow();
-        const labelCell = row.insertCell();
-        appendGroupLabel(labelCell, group.semantic, entries);
-        useDescriptionOnlyTooltip(labelCell, group, entries);
-        const valueCell = row.insertCell();
-        valueCell.style.setProperty('--cell-align', 'right');
-        appendValueCell(valueCell, group.result, entries, locale, dictionary);
-    }
-    if (body.rows.length) {
-        body.rows.item(body.rows.length - 1).className =
-            'calculation-table__emphasis';
-    }
-    container.append(sectionContainer);
-}
-
-function appendVerticalDetailSection(
+function appendPresentationSection(
     container,
-    group,
+    section,
     entries,
     locale,
     dictionary,
@@ -658,58 +568,41 @@ function appendVerticalDetailSection(
         'calculation-table calculation-table--vertical',
     );
     const caption = table.createCaption();
-    appendGroupLabel(caption, group.semantic, entries);
-    useDescriptionOnlyTooltip(caption, group, entries);
+    appendGroupLabel(caption, section.id, entries);
     const body = table.createTBody();
-    for (const value of groupValues(group)) {
-        const row = body.insertRow();
-        const labelCell = row.insertCell();
+    for (const presentationRow of [...section.rows, section.result]) {
+        const tableRow = body.insertRow();
+        if (presentationRow === section.result) {
+            tableRow.className = 'calculation-table__emphasis';
+        }
+        const labelCell = tableRow.insertCell();
         labelCell.textContent = entries.find(
-            ({ semantic }) => semantic === value.semantic,
-        )?.label ?? value.semantic;
-        const valueCell = row.insertCell();
+            ({ semantic }) => semantic === presentationRow.id,
+        )?.label ?? presentationRow.id;
+        const valueCell = tableRow.insertCell();
         valueCell.style.setProperty('--cell-align', 'right');
+        if (presentationRow.operator) {
+            valueCell.append(`${{
+                add: '+',
+                subtract: '−',
+                equals: '=',
+            }[presentationRow.operator]} `);
+        }
+        const value = presentationRowValue(presentationRow);
         appendValueCell(valueCell, value, entries, locale, dictionary);
     }
     container.append(sectionContainer);
 }
 
-function appendTableView(container, calculation, entries, locale, dictionary) {
-    const groups = collectResultGroups(calculation.breakdown);
-    const summaries = groups.filter((group) => group.role === 'summary');
-    const summarySet = new Set(summaries);
-    const details = groups.filter((group) => !summarySet.has(group));
-
-    for (let index = 0; index < details.length; ) {
-        const group = details[index];
-        if (group.orientation === 'vertical') {
-            appendVerticalDetailSection(
-                container,
-                group,
-                entries,
-                locale,
-                dictionary,
-            );
-            index += 1;
-            continue;
-        }
-        const signature = valueSignature(group);
-        const section = [group];
-        index += 1;
-        while (
-            index < details.length &&
-            details[index].orientation !== 'vertical' &&
-            details[index].tableHeadingSemantic ===
-                group.tableHeadingSemantic &&
-            valueSignature(details[index]) === signature
-        ) {
-            section.push(details[index]);
-            index += 1;
-        }
-        appendColumnSection(container, section, entries, locale, dictionary);
-    }
-    if (summaries.length) {
-        appendResultsSection(container, summaries, entries, locale, dictionary);
+function appendTableView(container, presentation, entries, locale, dictionary) {
+    for (const section of presentation.sections) {
+        appendPresentationSection(
+            container,
+            section,
+            entries,
+            locale,
+            dictionary,
+        );
     }
 }
 
@@ -1190,7 +1083,7 @@ function render() {
             if (selectedView === 'table') {
                 appendTableView(
                     expression,
-                    calculation,
+                    toPresentation(calculation),
                     entries,
                     locale,
                     dictionary,

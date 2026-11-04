@@ -34,6 +34,7 @@ npm install calculation-breakdown
 import {
     CalculationBreakdownBuilder,
     toHumanString,
+    toPresentation,
 } from 'calculation-breakdown';
 
 type TSemantic =
@@ -98,7 +99,7 @@ const copy = restored.build();
 - `number(semantic, value)`
 - `percent(semantic, value)` for fractional values (`'0.20'` renders as `20%`)
 - `constant(value)` for semantic-free numeric constants
-- `group(expression, options?)` for explicit brackets and optional `wrap`,
+- `group(expression, options?)` for explicit brackets and optional stable `id`, `wrap`,
   `semantic`, authoritative grouped `result` metadata (for example, a line
   subtotal), a semantic `role` (`detail` by default or `summary`), and an
   `orientation` hint (`horizontal` by default or `vertical`)
@@ -149,5 +150,26 @@ semantic keys. Rendering does not modify the calculation, and `build()` continue
 to return detached, deeply frozen plain JSON data.
 
 Duration rounding metadata accepts `rounding: 'up' | 'down' | 'nearest'` and a positive numeric `step`. For example, steps `0.1`, `1`, and `10` mean tenths, whole units, and multiples of ten.
+
+## Presentation output
+
+Use `toPresentation` when a frontend needs more structure than a human-readable
+string without consuming the complete calculation tree:
+
+```ts
+const presentation = toPresentation(calculation);
+```
+
+The output contains ordered sections with rows and authoritative results. Each
+row has a stable presentation `id` and exactly one typed property (`money`,
+`duration`, `number`, or `percent`). Result-bearing groups form sections, nested
+result-bearing groups become rows, and low-level operations, constants, and
+anonymous groups are omitted. A calculation without result-bearing groups is
+returned as one fallback section.
+
+Group IDs identify explanatory occurrences and can be used as frontend keys;
+they are not mathematical references. When an ID is omitted, the group's
+semantic is used. The builder provides `builder.toPresentation()` as a
+convenience for transforming its built calculation.
 
 The built output is detached and deeply frozen. It contains no localized text, HTML, CSS, colors, or executable calculation logic, making it suitable for transport and storage across financial applications.
