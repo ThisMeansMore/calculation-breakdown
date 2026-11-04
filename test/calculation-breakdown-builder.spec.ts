@@ -134,6 +134,7 @@ describe('CalculationBreakdownBuilder', () => {
         >()
             .breakdown(({ constant, group, number }) =>
                 group(constant('10'), {
+                    id: 'calculation-section',
                     wrap: true,
                     semantic: 'section',
                     role: 'summary',
@@ -147,6 +148,7 @@ describe('CalculationBreakdownBuilder', () => {
         assert.deepEqual(calculation.breakdown, {
             type: 'group',
             expression: { type: 'constant', value: '10' },
+            id: 'calculation-section',
             wrap: true,
             semantic: 'section',
             role: 'summary',
@@ -439,6 +441,11 @@ describe('CalculationBreakdownBuilder', () => {
                 code: 'INVALID_GROUP_ORIENTATION',
                 run: ({ constant, group }) =>
                     group(constant('1'), { orientation: 'diagonal' }),
+            },
+            {
+                code: 'INVALID_GROUP_ID',
+                run: ({ constant, group }) =>
+                    group(constant('1'), { id: '   ' }),
             },
             {
                 code: 'INVALID_ROUNDING_STEP',

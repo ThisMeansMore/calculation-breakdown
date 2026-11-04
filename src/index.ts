@@ -7,6 +7,14 @@ export {
     type TCalculationBreakdownLocale,
 } from './calculation-breakdown-human-string.js';
 export {
+    toPresentation,
+    type ICalculationBreakdownPresentation,
+    type ICalculationBreakdownPresentationSection,
+    type TCalculationBreakdownPresentationOperator,
+    type TCalculationBreakdownPresentationRow,
+    type TCalculationBreakdownPresentationValue,
+} from './calculation-breakdown-presentation.js';
+export {
     CalculationBreakdownError,
     type TCalculationBreakdownErrorCode,
 } from './calculation-breakdown.error.js';

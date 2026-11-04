@@ -1,5 +1,6 @@
 import { CalculationBreakdownError } from './calculation-breakdown.error.js';
 import { toHumanString, } from './calculation-breakdown-human-string.js';
+import { toPresentation, } from './calculation-breakdown-presentation.js';
 const DECIMAL_PATTERN = /^-?(?:0|[1-9]\d*)(?:\.\d+)?$/;
 const CURRENCY_PATTERN = /^[A-Z]{3}$/;
 const DURATION_UNITS = new Set([
@@ -40,6 +41,11 @@ const OPERATOR_ALIASES = {
 function assertSemantic(semantic) {
     if (semantic.trim().length === 0) {
         throw new CalculationBreakdownError('INVALID_SEMANTIC', 'Semantic must be a non-empty string.');
+    }
+}
+function assertId(id) {
+    if (id.trim().length === 0) {
+        throw new CalculationBreakdownError('INVALID_GROUP_ID', 'Group id must be a non-empty string.');
     }
 }
 function assertDecimal(value) {
@@ -174,6 +180,10 @@ export class CalculationBreakdownBuilder {
     toHumanString(options) {
         return toHumanString(this.build(), options);
     }
+    /** Builds a compact representation intended for frontend presentation. */
+    toPresentation() {
+        return toPresentation(this.build());
+    }
     hydrateNode(node) {
         if (!node || typeof node !== 'object') {
             throw this.invalidNode(node);
@@ -194,6 +204,7 @@ export class CalculationBreakdownBuilder {
         }
         if (node.type === 'group') {
             return this.createGroup(this.hydrateNode(node.expression), {
+                ...(node.id !== undefined ? { id: node.id } : {}),
                 ...(node.wrap !== undefined ? { wrap: node.wrap } : {}),
                 ...(node.semantic !== undefined
                     ? { semantic: node.semantic }
@@ -277,6 +288,9 @@ export class CalculationBreakdownBuilder {
         return deepFreeze({ type: 'constant', value });
     }
     createGroup(expression, options) {
+        if (options?.id !== undefined) {
+            assertId(options.id);
+        }
         if (options?.semantic !== undefined) {
             assertSemantic(options.semantic);
         }
@@ -291,6 +305,7 @@ export class CalculationBreakdownBuilder {
         return deepFreeze({
             type: 'group',
             expression,
+            ...(options?.id !== undefined ? { id: options.id } : {}),
             ...(options?.wrap === true ? { wrap: true } : {}),
             ...(options?.semantic !== undefined
                 ? { semantic: options.semantic }

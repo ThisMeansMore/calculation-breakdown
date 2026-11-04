@@ -3,6 +3,10 @@ import {
     toHumanString,
     type ICalculationBreakdownHumanStringOptions,
 } from './calculation-breakdown-human-string.js';
+import {
+    toPresentation,
+    type ICalculationBreakdownPresentation,
+} from './calculation-breakdown-presentation.js';
 import type {
     ICalculationBreakdown,
     ICalculationBreakdownConstantValue,
@@ -72,6 +76,15 @@ function assertSemantic(semantic: string): void {
         throw new CalculationBreakdownError(
             'INVALID_SEMANTIC',
             'Semantic must be a non-empty string.',
+        );
+    }
+}
+
+function assertId(id: string): void {
+    if (id.trim().length === 0) {
+        throw new CalculationBreakdownError(
+            'INVALID_GROUP_ID',
+            'Group id must be a non-empty string.',
         );
     }
 }
@@ -265,6 +278,11 @@ export class CalculationBreakdownBuilder<Semantic extends string> {
         return toHumanString(this.build(), options);
     }
 
+    /** Builds a compact representation intended for frontend presentation. */
+    toPresentation(): ICalculationBreakdownPresentation {
+        return toPresentation(this.build());
+    }
+
     private hydrateNode(
         node: TCalculationBreakdownNode<Semantic>,
     ): TCalculationBreakdownNode<Semantic> {
@@ -292,6 +310,7 @@ export class CalculationBreakdownBuilder<Semantic extends string> {
         }
         if (node.type === 'group') {
             return this.createGroup(this.hydrateNode(node.expression), {
+                ...(node.id !== undefined ? { id: node.id } : {}),
                 ...(node.wrap !== undefined ? { wrap: node.wrap } : {}),
                 ...(node.semantic !== undefined
                     ? { semantic: node.semantic }
@@ -423,6 +442,9 @@ export class CalculationBreakdownBuilder<Semantic extends string> {
         expression: TCalculationBreakdownNode<Semantic>,
         options?: ICalculationBreakdownGroupOptions<Semantic>,
     ): ICalculationBreakdownGroup<Semantic> {
+        if (options?.id !== undefined) {
+            assertId(options.id);
+        }
         if (options?.semantic !== undefined) {
             assertSemantic(options.semantic);
         }
@@ -449,6 +471,7 @@ export class CalculationBreakdownBuilder<Semantic extends string> {
         return deepFreeze({
             type: 'group',
             expression,
+            ...(options?.id !== undefined ? { id: options.id } : {}),
             ...(options?.wrap === true ? { wrap: true } : {}),
             ...(options?.semantic !== undefined
                 ? { semantic: options.semantic }

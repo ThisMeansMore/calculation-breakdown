@@ -1,6 +1,8 @@
 import {
     CalculationBreakdownBuilder,
     toHumanString,
+    toPresentation,
+    type TCalculationBreakdownPresentationRow,
 } from 'calculation-breakdown';
 
 type Semantic = 'price' | 'period' | 'coverage';
@@ -17,6 +19,11 @@ builder.breakdown(({ money, duration, divide }) => {
 builder.result(({ duration }) => duration('coverage', '10', 'days')).build();
 
 const calculation = builder.build();
+const presentation = toPresentation(calculation);
+const firstRow: TCalculationBreakdownPresentationRow | undefined =
+    presentation.sections[0]?.rows[0];
+void firstRow;
+builder.toPresentation();
 const restored = new CalculationBreakdownBuilder(calculation);
 restored.build();
 restored.breakdown(({ money }) => {
@@ -61,6 +68,7 @@ new CalculationBreakdownBuilder<Semantic>()
 new CalculationBreakdownBuilder<Semantic>()
     .breakdown(({ constant, group }) =>
         group(constant('1'), {
+            id: 'price-section',
             wrap: true,
             semantic: 'price',
             role: 'summary',
